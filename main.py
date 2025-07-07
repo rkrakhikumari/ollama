@@ -1,23 +1,8 @@
-from fastapi import FastAPI, File, UploadFile
-import fitz  
+import uvicorn
+from app.factory import create_app
+from app.config import Config
 
-app = FastAPI()
+app = create_app()
 
-@app.post("/extract-text/")
-async def extract_text_from_pdf(file: UploadFile = File(...)):
-    contents = await file.read()
-    
-    with open("temp.pdf", "wb") as f:
-        f.write(contents)
-
-    doc = fitz.open("temp.pdf")
-    full_text = ""
-    for page in doc:
-        full_text += page.get_text()
-    doc.close()
-
-    return {"filename": file.filename, "text": full_text}
-
-
-
-
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=Config.DEBUG)
